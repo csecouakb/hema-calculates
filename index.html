@@ -133,8 +133,93 @@
     }
 
     .note-input:focus,
-    .misc-input:focus {
+    .misc-input:focus,
+    .party-input:focus,
+    .misc-calc-display:focus {
       border-color: var(--primary);
+    }
+
+    .note-subtotal {
+      margin-top: 4px;
+      min-height: 24px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .party-label {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .party-input {
+      width: 100%;
+      height: 54px;
+      border: 2px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 8px 12px;
+      font-size: 20px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .misc-calc {
+      border: 2px solid var(--border);
+      background: var(--input);
+      border-radius: 15px;
+      padding: 8px;
+    }
+
+    .misc-calc-display {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: right;
+      padding: 4px 8px;
+      font-size: 25px;
+      font-weight: 800;
+      outline: none;
+    }
+
+    .misc-calc-buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .misc-calc-btn {
+      min-height: 48px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .misc-calc-btn.operator {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .misc-calc-btn.confirm {
+      background: var(--primary);
+      color: white;
+    }
+
+    .misc-result {
+      margin-top: 5px;
+      font-size: 14px;
+      color: var(--muted);
+      text-align: right;
+      min-height: 20px;
     }
 
     .misc-label {
@@ -349,6 +434,15 @@
 
     <div class="card">
 
+      <div style="margin-bottom:12px;">
+        <div class="party-label">CC / Party Name <span style="font-weight:600;color:var(--muted);font-size:15px;">(ঐচ্ছিক)</span></div>
+        <input id="partyInput"
+               class="party-input"
+               type="text"
+               placeholder="যেমন: Padma Filling Station"
+               aria-label="CC বা Party Name">
+      </div>
+
       <div class="note-grid">
 
         <div class="note-item">
@@ -356,6 +450,7 @@
           <input class="note-input" data-denom="1000"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="1000 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-1000"></div>
         </div>
 
         <div class="note-item">
@@ -363,6 +458,7 @@
           <input class="note-input" data-denom="500"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="500 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-500"></div>
         </div>
 
         <div class="note-item">
@@ -370,6 +466,7 @@
           <input class="note-input" data-denom="200"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="200 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-200"></div>
         </div>
 
         <div class="note-item">
@@ -377,6 +474,7 @@
           <input class="note-input" data-denom="100"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="100 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-100"></div>
         </div>
 
         <div class="note-item">
@@ -384,6 +482,7 @@
           <input class="note-input" data-denom="50"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="50 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-50"></div>
         </div>
 
         <div class="note-item">
@@ -391,6 +490,7 @@
           <input class="note-input" data-denom="20"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="20 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-20"></div>
         </div>
 
         <div class="note-item">
@@ -398,6 +498,7 @@
           <input class="note-input" data-denom="10"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="10 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-10"></div>
         </div>
 
         <div class="note-item">
@@ -405,17 +506,49 @@
           <input class="note-input" data-denom="5"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="5 টাকার নোট সংখ্যা">
+          <div class="note-subtotal" id="subtotal-5"></div>
         </div>
 
       </div>
 
       <div style="margin-top:12px;">
         <div class="misc-label">বিবিধ</div>
-        <input id="miscInput"
-               class="misc-input"
-               inputmode="numeric"
-               pattern="[0-9]*"
-               placeholder="টাকার পরিমাণ">
+
+        <div class="misc-calc">
+          <input id="miscInput"
+                 class="misc-calc-display"
+                 inputmode="decimal"
+                 aria-label="বিবিধ হিসাব"
+                 placeholder="0">
+
+          <div class="misc-calc-buttons">
+            <button type="button" class="misc-calc-btn" data-misc-value="7">7</button>
+            <button type="button" class="misc-calc-btn" data-misc-value="8">8</button>
+            <button type="button" class="misc-calc-btn" data-misc-value="9">9</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-value="/">÷</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-action="backspace">⌫</button>
+
+            <button type="button" class="misc-calc-btn" data-misc-value="4">4</button>
+            <button type="button" class="misc-calc-btn" data-misc-value="5">5</button>
+            <button type="button" class="misc-calc-btn" data-misc-value="6">6</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-value="*">×</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-action="clear">C</button>
+
+            <button type="button" class="misc-calc-btn" data-misc-value="1">1</button>
+            <button type="button" class="misc-calc-btn" data-misc-value="2">2</button>
+            <button type="button" class="misc-calc-btn" data-misc-value="3">3</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-value="-">−</button>
+            <button type="button" class="misc-calc-btn confirm" data-misc-action="confirm">✓</button>
+
+            <button type="button" class="misc-calc-btn" data-misc-value="0">0</button>
+            <button type="button" class="misc-calc-btn" data-misc-value=".">.</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-value="+">+</button>
+            <button type="button" class="misc-calc-btn operator" data-misc-action="equals">=</button>
+            <button type="button" class="misc-calc-btn" style="visibility:hidden;"> </button>
+          </div>
+
+          <div id="miscResult" class="misc-result">✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে</div>
+        </div>
       </div>
 
       <div class="total-box" style="margin-top:12px;">
@@ -528,43 +661,174 @@
   const noteInputs =
     document.querySelectorAll(".note-input");
 
+  const partyInput =
+    document.getElementById("partyInput");
+
   const miscInput =
     document.getElementById("miscInput");
+
+  const miscResult =
+    document.getElementById("miscResult");
 
   const totalElement =
     document.getElementById("total");
 
+  let miscExpression = "";
+  let miscValue = 0;
+
+  function formatMoney(amount) {
+    return "৳" + Number(amount || 0).toLocaleString("en-US");
+  }
+
+  function updateNoteSubtotals() {
+    noteInputs.forEach(input => {
+      const denomination = Number(input.dataset.denom);
+      const count = Number(input.value) || 0;
+      const subtotal = document.getElementById("subtotal-" + denomination);
+
+      subtotal.textContent = count > 0
+        ? formatMoney(denomination * count)
+        : "";
+    });
+  }
 
   function calculateTotal() {
-
     let total = 0;
 
     noteInputs.forEach(input => {
-
-      const denomination =
-        Number(input.dataset.denom);
-
-      const count =
-        Number(input.value) || 0;
-
-      total += denomination * count;
-
+      total += Number(input.dataset.denom) * (Number(input.value) || 0);
     });
 
-    total += Number(miscInput.value) || 0;
-
-    totalElement.textContent =
-      "৳" + total.toLocaleString("en-US");
-
+    total += Number(miscValue) || 0;
+    updateNoteSubtotals();
+    totalElement.textContent = formatMoney(total);
     return total;
   }
-
 
   noteInputs.forEach(input => {
     input.addEventListener("input", calculateTotal);
   });
 
-  miscInput.addEventListener("input", calculateTotal);
+  function updateMiscDisplay() {
+    miscInput.value = miscExpression;
+  }
+
+  function evaluateMiscExpression() {
+    if (!miscExpression) return null;
+
+    try {
+      const expression = miscExpression.replace(/×/g, "*").replace(/÷/g, "/");
+
+      if (!/^[0-9+\-*/().\s]+$/.test(expression)) {
+        throw new Error();
+      }
+
+      const result = Function(
+        '"use strict"; return (' + expression + ')'
+      )();
+
+      if (!Number.isFinite(result)) {
+        throw new Error();
+      }
+
+      return result;
+    } catch {
+      return null;
+    }
+  }
+
+  function confirmMisc() {
+    const result = evaluateMiscExpression();
+
+    if (result === null) {
+      miscResult.textContent = "হিসাবটি সঠিক নয়";
+      return;
+    }
+
+    miscValue = result;
+    miscExpression = String(result);
+    updateMiscDisplay();
+    miscResult.textContent = "✓ বিবিধে " + formatMoney(result) + " যোগ হয়েছে";
+    calculateTotal();
+  }
+
+  document.querySelectorAll(".misc-calc-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const value = button.dataset.miscValue;
+      const action = button.dataset.miscAction;
+
+      if (action === "clear") {
+        miscExpression = "";
+        miscValue = 0;
+        updateMiscDisplay();
+        miscResult.textContent = "✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে";
+        calculateTotal();
+        return;
+      }
+
+      if (action === "backspace") {
+        miscExpression = miscExpression.slice(0, -1);
+        updateMiscDisplay();
+        const result = evaluateMiscExpression();
+        miscValue = result === null ? 0 : result;
+        calculateTotal();
+        return;
+      }
+
+      if (action === "equals") {
+        const result = evaluateMiscExpression();
+
+        if (result === null) {
+          miscResult.textContent = "হিসাবটি সঠিক নয়";
+          return;
+        }
+
+        miscExpression = String(result);
+        miscValue = result;
+        updateMiscDisplay();
+        miscResult.textContent = "ফলাফল: " + formatMoney(result);
+        calculateTotal();
+        return;
+      }
+
+      if (action === "confirm") {
+        confirmMisc();
+        return;
+      }
+
+      if (value !== undefined) {
+        const last = miscExpression.slice(-1);
+        const isOperator = ["+", "-", "*", "/"].includes(value);
+
+        if (isOperator && ["+", "-", "*", "/"].includes(last)) {
+          miscExpression = miscExpression.slice(0, -1) + value;
+        } else if (value === "." && last === ".") {
+          return;
+        } else {
+          miscExpression += value;
+        }
+
+        updateMiscDisplay();
+
+        const result = evaluateMiscExpression();
+        if (result !== null) {
+          miscValue = result;
+          calculateTotal();
+        }
+      }
+    });
+  });
+
+  miscInput.addEventListener("input", () => {
+    miscExpression = miscInput.value;
+    const result = evaluateMiscExpression();
+    miscValue = result === null ? 0 : result;
+    miscResult.textContent =
+      result === null
+        ? (miscExpression ? "হিসাবটি সঠিক নয়" : "✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে")
+        : "ফলাফল: " + formatMoney(result);
+    calculateTotal();
+  });
 
 
   /* =========================
@@ -578,7 +842,11 @@
         input.value = "";
       });
 
+      partyInput.value = "";
+      miscExpression = "";
+      miscValue = 0;
       miscInput.value = "";
+      miscResult.textContent = "✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে";
 
       calculateTotal();
 
@@ -633,8 +901,7 @@
 
       });
 
-      const misc =
-        Number(miscInput.value) || 0;
+      const misc = Number(miscValue) || 0;
 
       const now = new Date();
 
@@ -644,6 +911,7 @@
           hour: "2-digit",
           minute: "2-digit"
         }),
+        party: partyInput.value.trim(),
         breakdown,
         misc,
         total
@@ -659,6 +927,15 @@
 
     });
 
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
   function renderHistory() {
 
@@ -686,7 +963,7 @@
         });
 
       if (item.misc > 0) {
-        parts.push(`বিবিধ: ৳${item.misc}`);
+        parts.push(`বিবিধ: ৳${Number(item.misc).toLocaleString("en-US")}`);
       }
 
       return `
@@ -694,9 +971,12 @@
 
           <div class="history-head">
 
+            <div>
+            ${item.party ? '<div style="font-size:18px;font-weight:800;margin-bottom:2px;">' + escapeHtml(item.party) + '</div>' : ''}
             <div class="history-total">
               ৳${Number(item.total).toLocaleString("en-US")}
             </div>
+          </div>
 
             <div class="history-time">
               ${item.date} • ${item.time}
