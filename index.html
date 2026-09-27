@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e8f0ec">
+  <meta name="description" content="Hema Calculates">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+
+  <title>Hema Calculates</title>
+
+  <style>
+    :root {
+      --bg: #eef3ef;
+      --card: #ffffff;
+      --text: #26332d;
+      --muted: #66736c;
+      --border: #d5ded8;
+      --primary: #496b5a;
+      --primary-soft: #e4eee8;
+      --danger: #a65b5b;
+      --input: #f7faf8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans Bengali",
+        sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      width: min(100%, 760px);
+      margin: auto;
+      padding: 14px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 800;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      min-height: 54px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .note-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .note-item {
+      min-width: 0;
+    }
+
+    .denom {
+      text-align: center;
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .note-input {
+      width: 100%;
+      height: 54px;
+      border: 2px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      border-radius: 12px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .note-input:focus,
+    .misc-input:focus {
+      border-color: var(--primary);
+    }
+
+    .misc-label {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .misc-input {
+      width: 100%;
+      height: 58px;
+      border: 2px solid var(--border);
+      background: var(--input);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 8px 12px;
+      font-size: 25px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .total-box {
+      background: var(--primary-soft);
+      border: 2px solid #c7d8ce;
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .total-label {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .total {
+      margin-top: 2px;
+      font-size: clamp(38px, 10vw, 64px);
+      line-height: 1.1;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      min-height: 56px;
+      border: 0;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 19px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-soft {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background: #f3e4e4;
+      color: var(--danger);
+      border: 1px solid #e3caca;
+    }
+
+    /* Calculator */
+
+    .calc-display {
+      width: 100%;
+      min-height: 90px;
+      background: var(--input);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: right;
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 800;
+      overflow-x: auto;
+      margin-bottom: 10px;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+    }
+
+    .calc-btn {
+      min-height: 62px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      font-size: 24px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .calc-btn.operator {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .calc-btn.equal {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* History */
+
+    .history-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 19px;
+      padding: 25px 10px;
+    }
+
+    .history-item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: var(--input);
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .history-total {
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .history-time {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .history-breakdown {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 9px;
+      }
+
+      .card {
+        padding: 10px;
+        border-radius: 17px;
+      }
+
+      .note-grid {
+        gap: 7px;
+      }
+
+      .note-input {
+        height: 50px;
+        font-size: 20px;
+      }
+
+      .denom {
+        font-size: 18px;
+      }
+
+      .tab {
+        min-height: 50px;
+        font-size: 15px;
+      }
+
+      .btn {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <h1>Hema Calculates</h1>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="notes">নোট কাউন্টার</button>
+    <button class="tab" data-tab="calculator">ক্যালকুলেটর</button>
+    <button class="tab" data-tab="history">হিস্টোরি</button>
+  </div>
+
+  <!-- NOTE COUNTER -->
+  <section id="notes" class="panel active">
+
+    <div class="card">
+
+      <div class="note-grid">
+
+        <div class="note-item">
+          <div class="denom">৳1000</div>
+          <input class="note-input" data-denom="1000"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="1000 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳500</div>
+          <input class="note-input" data-denom="500"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="500 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳200</div>
+          <input class="note-input" data-denom="200"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="200 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳100</div>
+          <input class="note-input" data-denom="100"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="100 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳50</div>
+          <input class="note-input" data-denom="50"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="50 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳20</div>
+          <input class="note-input" data-denom="20"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="20 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳10</div>
+          <input class="note-input" data-denom="10"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="10 টাকার নোট সংখ্যা">
+        </div>
+
+        <div class="note-item">
+          <div class="denom">৳5</div>
+          <input class="note-input" data-denom="5"
+                 inputmode="numeric" pattern="[0-9]*"
+                 aria-label="5 টাকার নোট সংখ্যা">
+        </div>
+
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="misc-label">বিবিধ</div>
+        <input id="miscInput"
+               class="misc-input"
+               inputmode="numeric"
+               pattern="[0-9]*"
+               placeholder="টাকার পরিমাণ">
+      </div>
+
+      <div class="total-box" style="margin-top:12px;">
+        <div class="total-label">সর্বমোট</div>
+        <div id="total" class="total">৳0</div>
+      </div>
+
+      <div class="actions">
+        <button id="newBtn" class="btn btn-soft">নতুন হিসাব</button>
+        <button id="saveBtn" class="btn btn-primary">হিসাব সংরক্ষণ</button>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- CALCULATOR -->
+  <section id="calculator" class="panel">
+
+    <div class="card">
+
+      <div id="calcDisplay" class="calc-display">0</div>
+
+      <div class="calc-grid">
+
+        <button class="calc-btn operator" data-action="clear">C</button>
+        <button class="calc-btn operator" data-action="backspace">⌫</button>
+        <button class="calc-btn operator" data-value="%">%</button>
+        <button class="calc-btn operator" data-value="/">÷</button>
+
+        <button class="calc-btn" data-value="7">7</button>
+        <button class="calc-btn" data-value="8">8</button>
+        <button class="calc-btn" data-value="9">9</button>
+        <button class="calc-btn operator" data-value="*">×</button>
+
+        <button class="calc-btn" data-value="4">4</button>
+        <button class="calc-btn" data-value="5">5</button>
+        <button class="calc-btn" data-value="6">6</button>
+        <button class="calc-btn operator" data-value="-">−</button>
+
+        <button class="calc-btn" data-value="1">1</button>
+        <button class="calc-btn" data-value="2">2</button>
+        <button class="calc-btn" data-value="3">3</button>
+        <button class="calc-btn operator" data-value="+">+</button>
+
+        <button class="calc-btn" data-value="0">0</button>
+        <button class="calc-btn" data-value=".">.</button>
+        <button class="calc-btn equal" data-action="equals">=</button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- HISTORY -->
+  <section id="history" class="panel">
+
+    <div class="card">
+
+      <div id="historyList"></div>
+
+      <button id="clearHistoryBtn"
+              class="btn btn-danger"
+              style="width:100%;">
+        সব হিসাব মুছুন
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+
+  /* =========================
+     TAB SYSTEM
+  ========================= */
+
+  document.querySelectorAll(".tab").forEach(tab => {
+
+    tab.addEventListener("click", () => {
+
+      document.querySelectorAll(".tab")
+        .forEach(t => t.classList.remove("active"));
+
+      document.querySelectorAll(".panel")
+        .forEach(p => p.classList.remove("active"));
+
+      tab.classList.add("active");
+
+      document
+        .getElementById(tab.dataset.tab)
+        .classList.add("active");
+
+      if (tab.dataset.tab === "history") {
+        renderHistory();
+      }
+
+    });
+
+  });
+
+
+  /* =========================
+     NOTE COUNTER
+  ========================= */
+
+  const noteInputs =
+    document.querySelectorAll(".note-input");
+
+  const miscInput =
+    document.getElementById("miscInput");
+
+  const totalElement =
+    document.getElementById("total");
+
+
+  function calculateTotal() {
+
+    let total = 0;
+
+    noteInputs.forEach(input => {
+
+      const denomination =
+        Number(input.dataset.denom);
+
+      const count =
+        Number(input.value) || 0;
+
+      total += denomination * count;
+
+    });
+
+    total += Number(miscInput.value) || 0;
+
+    totalElement.textContent =
+      "৳" + total.toLocaleString("en-US");
+
+    return total;
+  }
+
+
+  noteInputs.forEach(input => {
+    input.addEventListener("input", calculateTotal);
+  });
+
+  miscInput.addEventListener("input", calculateTotal);
+
+
+  /* =========================
+     NEW CALCULATION
+  ========================= */
+
+  document.getElementById("newBtn")
+    .addEventListener("click", () => {
+
+      noteInputs.forEach(input => {
+        input.value = "";
+      });
+
+      miscInput.value = "";
+
+      calculateTotal();
+
+    });
+
+
+  /* =========================
+     HISTORY
+  ========================= */
+
+  function getHistory() {
+
+    try {
+      return JSON.parse(
+        localStorage.getItem("hemaCalculatesHistory")
+      ) || [];
+    } catch {
+      return [];
+    }
+
+  }
+
+
+  function saveHistory(history) {
+
+    localStorage.setItem(
+      "hemaCalculatesHistory",
+      JSON.stringify(history)
+    );
+
+  }
+
+
+  document.getElementById("saveBtn")
+    .addEventListener("click", () => {
+
+      const total = calculateTotal();
+
+      const breakdown = {};
+
+      noteInputs.forEach(input => {
+
+        const denomination =
+          input.dataset.denom;
+
+        const count =
+          Number(input.value) || 0;
+
+        if (count > 0) {
+          breakdown[denomination] = count;
+        }
+
+      });
+
+      const misc =
+        Number(miscInput.value) || 0;
+
+      const now = new Date();
+
+      const item = {
+        date: now.toLocaleDateString("en-GB"),
+        time: now.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit"
+        }),
+        breakdown,
+        misc,
+        total
+      };
+
+      const history = getHistory();
+
+      history.unshift(item);
+
+      saveHistory(history);
+
+      alert("হিসাব সংরক্ষণ হয়েছে");
+
+    });
+
+
+  function renderHistory() {
+
+    const list =
+      document.getElementById("historyList");
+
+    const history = getHistory();
+
+    if (history.length === 0) {
+
+      list.innerHTML =
+        '<div class="history-empty">এখনও কোনো হিসাব সংরক্ষণ করা হয়নি।</div>';
+
+      return;
+    }
+
+
+    list.innerHTML = history.map(item => {
+
+      const parts = [];
+
+      Object.entries(item.breakdown)
+        .forEach(([denom, count]) => {
+          parts.push(`৳${denom} × ${count}`);
+        });
+
+      if (item.misc > 0) {
+        parts.push(`বিবিধ: ৳${item.misc}`);
+      }
+
+      return `
+        <div class="history-item">
+
+          <div class="history-head">
+
+            <div class="history-total">
+              ৳${Number(item.total).toLocaleString("en-US")}
+            </div>
+
+            <div class="history-time">
+              ${item.date} • ${item.time}
+            </div>
+
+          </div>
+
+          <div class="history-breakdown">
+            ${parts.length ? parts.join(" • ") : "কোনো নোট নেই"}
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+
+  }
+
+
+  document.getElementById("clearHistoryBtn")
+    .addEventListener("click", () => {
+
+      if (!confirm("সব সংরক্ষিত হিসাব মুছে ফেলবেন?")) {
+        return;
+      }
+
+      localStorage.removeItem(
+        "hemaCalculatesHistory"
+      );
+
+      renderHistory();
+
+    });
+
+
+  /* =========================
+     NORMAL CALCULATOR
+  ========================= */
+
+  const calcDisplay =
+    document.getElementById("calcDisplay");
+
+  let calcExpression = "";
+
+
+  function updateCalcDisplay() {
+
+    calcDisplay.textContent =
+      calcExpression || "0";
+
+  }
+
+
+  function calculateExpression() {
+
+    if (!calcExpression) {
+      return;
+    }
+
+    try {
+
+      let expression =
+        calcExpression.replace(/%/g, "/100");
+
+      if (!/^[0-9+\-*/().\s]+$/.test(expression)) {
+        throw new Error();
+      }
+
+      const result =
+        Function(
+          `"use strict"; return (${expression})`
+        )();
+
+      if (!Number.isFinite(result)) {
+        throw new Error();
+      }
+
+      calcExpression =
+        String(result);
+
+      updateCalcDisplay();
+
+    } catch {
+
+      calcDisplay.textContent = "Error";
+
+      setTimeout(() => {
+        calcExpression = "";
+        updateCalcDisplay();
+      }, 800);
+
+    }
+
+  }
+
+
+  document.querySelectorAll(".calc-btn")
+    .forEach(button => {
+
+      button.addEventListener("click", () => {
+
+        const value =
+          button.dataset.value;
+
+        const action =
+          button.dataset.action;
+
+
+        if (action === "clear") {
+
+          calcExpression = "";
+          updateCalcDisplay();
+          return;
+
+        }
+
+
+        if (action === "backspace") {
+
+          calcExpression =
+            calcExpression.slice(0, -1);
+
+          updateCalcDisplay();
+          return;
+
+        }
+
+
+        if (action === "equals") {
+
+          calculateExpression();
+          return;
+
+        }
+
+
+        if (value !== undefined) {
+
+          calcExpression += value;
+
+          updateCalcDisplay();
+
+        }
+
+      });
+
+    });
+
+
+  /* =========================
+     SERVICE WORKER
+  ========================= */
+
+  if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+      navigator.serviceWorker
+        .register("./sw.js")
+        .catch(error => {
+          console.log(
+            "Service Worker registration failed:",
+            error
+          );
+        });
+
+    });
+
+  }
+
+</script>
+
+</body>
+</html>

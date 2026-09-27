@@ -1,0 +1,11 @@
+{
+  "name": "Hema Calculates",
+  "short_name": "Hema Calculates",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#eef3ef",
+  "theme_color": "#e8f0ec",
+  "orientation": "portrait",
+  "lang": "bn",
+  "description": "Hema Calculates"
+}
