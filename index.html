@@ -167,39 +167,41 @@
       outline: none;
     }
 
-    .misc-calc {
-      border: 2px solid var(--border);
-      background: var(--input);
-      border-radius: 15px;
-      padding: 8px;
+    .misc-field-wrap {
+      position: relative;
     }
 
-    .misc-calc-display {
-      width: 100%;
-      height: 52px;
-      border: 0;
-      background: transparent;
-      color: var(--text);
-      text-align: right;
-      padding: 4px 8px;
-      font-size: 25px;
-      font-weight: 800;
-      outline: none;
+    .misc-calc {
+      display: none;
+      position: absolute;
+      z-index: 50;
+      left: 0;
+      right: 0;
+      top: calc(100% + 6px);
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 10px 25px rgba(38, 51, 45, 0.14);
+    }
+
+    .misc-calc.open {
+      display: block;
     }
 
     .misc-calc-buttons {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
     }
 
     .misc-calc-btn {
-      min-height: 48px;
+      min-height: 50px;
       border: 1px solid var(--border);
       background: var(--card);
       color: var(--text);
-      border-radius: 10px;
-      font-size: 20px;
+      border-radius: 11px;
+      font-size: 21px;
       font-weight: 800;
       cursor: pointer;
     }
@@ -212,6 +214,13 @@
     .misc-calc-btn.confirm {
       background: var(--primary);
       color: white;
+      grid-column: 4;
+      grid-row: 5;
+    }
+
+    .misc-calc-btn.clear {
+      background: #f3e4e4;
+      color: var(--danger);
     }
 
     .misc-result {
@@ -514,41 +523,49 @@
       <div style="margin-top:12px;">
         <div class="misc-label">বিবিধ</div>
 
-        <div class="misc-calc">
+        <div class="misc-field-wrap">
           <input id="miscInput"
-                 class="misc-calc-display"
-                 inputmode="decimal"
-                 aria-label="বিবিধ হিসাব"
-                 placeholder="0">
+                 class="misc-input"
+                 inputmode="none"
+                 readonly
+                 placeholder="টাকার পরিমাণ"
+                 aria-label="বিবিধ টাকার পরিমাণ">
 
-          <div class="misc-calc-buttons">
-            <button type="button" class="misc-calc-btn" data-misc-value="7">7</button>
-            <button type="button" class="misc-calc-btn" data-misc-value="8">8</button>
-            <button type="button" class="misc-calc-btn" data-misc-value="9">9</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-value="/">÷</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-action="backspace">⌫</button>
+          <div id="miscCalc" class="misc-calc" aria-label="বিবিধ mini calculator">
+            <div class="misc-calc-buttons">
 
-            <button type="button" class="misc-calc-btn" data-misc-value="4">4</button>
-            <button type="button" class="misc-calc-btn" data-misc-value="5">5</button>
-            <button type="button" class="misc-calc-btn" data-misc-value="6">6</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-value="*">×</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-action="clear">C</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="7">7</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="8">8</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="9">9</button>
+              <button type="button" class="misc-calc-btn operator" data-misc-value="+">+</button>
 
-            <button type="button" class="misc-calc-btn" data-misc-value="1">1</button>
-            <button type="button" class="misc-calc-btn" data-misc-value="2">2</button>
-            <button type="button" class="misc-calc-btn" data-misc-value="3">3</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-value="-">−</button>
-            <button type="button" class="misc-calc-btn confirm" data-misc-action="confirm">✓</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="4">4</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="5">5</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="6">6</button>
+              <button type="button" class="misc-calc-btn operator" data-misc-value="-">−</button>
 
-            <button type="button" class="misc-calc-btn" data-misc-value="0">0</button>
-            <button type="button" class="misc-calc-btn" data-misc-value=".">.</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-value="+">+</button>
-            <button type="button" class="misc-calc-btn operator" data-misc-action="equals">=</button>
-            <button type="button" class="misc-calc-btn" style="visibility:hidden;"> </button>
+              <button type="button" class="misc-calc-btn" data-misc-value="1">1</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="2">2</button>
+              <button type="button" class="misc-calc-btn" data-misc-value="3">3</button>
+              <button type="button" class="misc-calc-btn operator" data-misc-value="*">×</button>
+
+              <button type="button" class="misc-calc-btn" data-misc-value="0">0</button>
+              <button type="button" class="misc-calc-btn" data-misc-value=".">.</button>
+              <button type="button" class="misc-calc-btn operator" data-misc-action="backspace">⌫</button>
+              <button type="button" class="misc-calc-btn operator" data-misc-value="/">÷</button>
+
+              <button type="button" class="misc-calc-btn clear" data-misc-action="clear">C</button>
+              <button type="button" class="misc-calc-btn operator" data-misc-action="equals">=</button>
+              <button type="button" class="misc-calc-btn" style="visibility:hidden;"> </button>
+              <button type="button" class="misc-calc-btn confirm" data-misc-action="confirm">✓</button>
+
+            </div>
+
+            <div id="miscResult" class="misc-result">অঙ্ক লিখে ✓ চাপুন</div>
           </div>
-
-          <div id="miscResult" class="misc-result">✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে</div>
         </div>
+      </div>
+
       </div>
 
       <div class="total-box" style="margin-top:12px;">
@@ -667,6 +684,9 @@
   const miscInput =
     document.getElementById("miscInput");
 
+  const miscCalc =
+    document.getElementById("miscCalc");
+
   const miscResult =
     document.getElementById("miscResult");
 
@@ -737,6 +757,23 @@
     }
   }
 
+  function openMiscCalc() {
+    miscCalc.classList.add("open");
+  }
+
+  function closeMiscCalc() {
+    miscCalc.classList.remove("open");
+  }
+
+  miscInput.addEventListener("click", openMiscCalc);
+  miscInput.addEventListener("focus", openMiscCalc);
+
+  document.addEventListener("click", event => {
+    if (!event.target.closest(".misc-field-wrap")) {
+      closeMiscCalc();
+    }
+  });
+
   function confirmMisc() {
     const result = evaluateMiscExpression();
 
@@ -748,12 +785,16 @@
     miscValue = result;
     miscExpression = String(result);
     updateMiscDisplay();
-    miscResult.textContent = "✓ বিবিধে " + formatMoney(result) + " যোগ হয়েছে";
+    miscResult.textContent = "✓ " + formatMoney(result);
     calculateTotal();
+    closeMiscCalc();
+    miscInput.blur();
   }
 
   document.querySelectorAll(".misc-calc-btn").forEach(button => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", event => {
+      event.preventDefault();
+
       const value = button.dataset.miscValue;
       const action = button.dataset.miscAction;
 
@@ -761,7 +802,7 @@
         miscExpression = "";
         miscValue = 0;
         updateMiscDisplay();
-        miscResult.textContent = "✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে";
+        miscResult.textContent = "অঙ্ক লিখে ✓ চাপুন";
         calculateTotal();
         return;
       }
@@ -769,6 +810,7 @@
       if (action === "backspace") {
         miscExpression = miscExpression.slice(0, -1);
         updateMiscDisplay();
+
         const result = evaluateMiscExpression();
         miscValue = result === null ? 0 : result;
         calculateTotal();
@@ -798,9 +840,10 @@
 
       if (value !== undefined) {
         const last = miscExpression.slice(-1);
-        const isOperator = ["+", "-", "*", "/"].includes(value);
+        const operators = ["+", "-", "*", "/"];
+        const isOperator = operators.includes(value);
 
-        if (isOperator && ["+", "-", "*", "/"].includes(last)) {
+        if (isOperator && operators.includes(last)) {
           miscExpression = miscExpression.slice(0, -1) + value;
         } else if (value === "." && last === ".") {
           return;
@@ -819,17 +862,6 @@
     });
   });
 
-  miscInput.addEventListener("input", () => {
-    miscExpression = miscInput.value;
-    const result = evaluateMiscExpression();
-    miscValue = result === null ? 0 : result;
-    miscResult.textContent =
-      result === null
-        ? (miscExpression ? "হিসাবটি সঠিক নয়" : "✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে")
-        : "ফলাফল: " + formatMoney(result);
-    calculateTotal();
-  });
-
 
   /* =========================
      NEW CALCULATION
@@ -846,7 +878,8 @@
       miscExpression = "";
       miscValue = 0;
       miscInput.value = "";
-      miscResult.textContent = "✓ চাপলে এই অঙ্কটি বিবিধ হিসেবে যোগ হবে";
+      miscResult.textContent = "অঙ্ক লিখে ✓ চাপুন";
+      closeMiscCalc();
 
       calculateTotal();
 
