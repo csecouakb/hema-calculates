@@ -1,4 +1,4 @@
-const CACHE_NAME = "hema-calculates-v1";
+const CACHE_NAME = "hema-calculates-v2";
 
 const FILES = [
   "./",
