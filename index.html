@@ -313,6 +313,30 @@
       border: 1px solid #e3caca;
     }
 
+
+    .target-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 7px;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+    .target-check { width: 22px; height: 22px; accent-color: var(--primary); }
+    .target-label { font-size: 16px; font-weight: 800; white-space: nowrap; }
+    .target-input {
+      width: 100%; height: 42px; border: 2px solid var(--border);
+      background: var(--input); color: var(--text); border-radius: 11px;
+      padding: 5px 10px; font-size: 19px; font-weight: 800; outline: none;
+    }
+    .target-status {
+      min-height: 30px; padding: 5px 8px; border-radius: 9px;
+      text-align: center; font-size: 14px; font-weight: 900; margin-bottom: 6px;
+    }
+    .target-status:empty { display:none; }
+    .target-ok { background:#e4eee8; color:#496b5a; }
+    .target-high { background:#f3e4e4; color:#a65b5b; }
+    .target-low { background:#fff3d9; color:#8a681d; }
+
     /* Calculator */
 
     .calc-display {
@@ -491,6 +515,11 @@
       .note-input { height: 42px; font-size: 18px; border-radius: 9px; }
       .note-subtotal { min-height: 17px; margin-top: 2px; font-size: 12px; }
       .party-row { gap: 5px; margin-bottom: 5px; }
+      .target-row { grid-template-columns: auto auto 1fr; gap: 5px; margin-bottom: 5px; }
+      .target-label { font-size: 14px; }
+      .target-check { width: 20px; height: 20px; }
+      .target-input { height: 39px; font-size: 17px; }
+      .target-status { min-height: 27px; font-size: 13px; padding: 4px; }
       .party-label { font-size: 14px; }
       .party-input { height: 40px; font-size: 16px; }
       .misc-label { font-size: 15px; }
@@ -530,6 +559,13 @@
   <section id="notes" class="panel active">
 
     <div class="card">
+
+      <div class="target-row">
+        <input id="targetEnabled" class="target-check" type="checkbox" aria-label="Target Amount চালু করুন">
+        <div class="target-label">Target</div>
+        <input id="targetInput" class="target-input" inputmode="decimal" placeholder="Target Amount" aria-label="Target Amount">
+      </div>
+      <div id="targetStatus" class="target-status"></div>
 
       <div class="party-row">
         <div class="party-label">Note (Optional)</div>
@@ -819,11 +855,24 @@
   const totalElement =
     document.getElementById("total");
 
+  const targetEnabled =
+    document.getElementById("targetEnabled");
+
+  const targetInput =
+    document.getElementById("targetInput");
+
+  const targetStatus =
+    document.getElementById("targetStatus");
+
   let miscExpression = "";
   let miscValue = 0;
 
   function formatMoney(amount) {
-    return "৳" + Number(amount || 0).toLocaleString("en-US");
+    return "৳" + Number(amount || 0).toLocaleString("en-IN");
+  }
+
+  function formatNumberBD(amount) {
+    return Number(amount || 0).toLocaleString("en-IN");
   }
 
   function updateNoteSubtotals() {
@@ -838,6 +887,34 @@
     });
   }
 
+  function updateTargetStatus(total) {
+    if (!targetEnabled.checked || targetInput.value.trim() === "") {
+      targetStatus.textContent = "";
+      targetStatus.className = "target-status";
+      return;
+    }
+
+    const target = Number(targetInput.value.replace(/,/g, ""));
+    if (!Number.isFinite(target) || target < 0) {
+      targetStatus.textContent = "⚠ সঠিক Target Amount দিন";
+      targetStatus.className = "target-status target-low";
+      return;
+    }
+
+    const difference = total - target;
+
+    if (difference === 0) {
+      targetStatus.textContent = "✓ Target Amount-এর সাথে মিলেছে: ৳" + formatNumberBD(total);
+      targetStatus.className = "target-status target-ok";
+    } else if (difference > 0) {
+      targetStatus.textContent = "↑ Target-এর চেয়ে বেশি: ৳" + formatNumberBD(difference);
+      targetStatus.className = "target-status target-high";
+    } else {
+      targetStatus.textContent = "⚠ Target-এর চেয়ে কম: ৳" + formatNumberBD(Math.abs(difference));
+      targetStatus.className = "target-status target-low";
+    }
+  }
+
   function calculateTotal() {
     let total = 0;
 
@@ -848,12 +925,16 @@
     total += Number(miscValue) || 0;
     updateNoteSubtotals();
     totalElement.textContent = formatMoney(total);
+    updateTargetStatus(total);
     return total;
   }
 
   noteInputs.forEach(input => {
     input.addEventListener("input", calculateTotal);
   });
+
+  targetEnabled.addEventListener("change", calculateTotal);
+  targetInput.addEventListener("input", calculateTotal);
 
   function updateMiscDisplay() {
     miscInput.value = miscExpression;
@@ -1001,6 +1082,10 @@
       });
 
       partyInput.value = "";
+      targetEnabled.checked = false;
+      targetInput.value = "";
+      targetStatus.textContent = "";
+      targetStatus.className = "target-status";
       miscExpression = "";
       miscValue = 0;
       miscInput.value = "";
