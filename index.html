@@ -264,6 +264,22 @@
       border-radius: 18px;
       padding: 7px;
       text-align: center;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .total-box.total-ok {
+      background: #e4eee8;
+      border-color: #b9d0c2;
+    }
+
+    .total-box.total-high {
+      background: #f3e4e4;
+      border-color: #e3caca;
+    }
+
+    .total-box.total-low {
+      background: #fff3d9;
+      border-color: #ead9a8;
     }
 
     .total-label {
@@ -277,6 +293,30 @@
       line-height: 1.1;
       font-weight: 900;
       word-break: break-word;
+    }
+
+    .target-status {
+      min-height: 0;
+      margin-top: 4px;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .target-status:empty {
+      display: none;
+    }
+
+    .target-status.target-ok {
+      color: #496b5a;
+    }
+
+    .target-status.target-high {
+      color: #a65b5b;
+    }
+
+    .target-status.target-low {
+      color: #8a681d;
     }
 
     .actions {
@@ -565,8 +605,6 @@
         <div class="target-label">Target</div>
         <input id="targetInput" class="target-input" inputmode="decimal" placeholder="Target Amount" aria-label="Target Amount">
       </div>
-      <div id="targetStatus" class="target-status"></div>
-
       <div class="party-row">
         <div class="party-label">Note (Optional)</div>
         <input id="partyInput" class="party-input" type="text" placeholder="" aria-label="Note">
@@ -686,9 +724,10 @@
         </div>
       </div>
 
-      <div class="total-box" style="margin-top:12px;">
+      <div id="totalBox" class="total-box" style="margin-top:12px;">
         <div class="total-label">সর্বমোট</div>
         <div id="total" class="total">৳0</div>
+        <div id="targetStatus" class="target-status"></div>
       </div>
 
       <div class="actions">
@@ -864,6 +903,9 @@
   const targetStatus =
     document.getElementById("targetStatus");
 
+  const totalBox =
+    document.getElementById("totalBox");
+
   let miscExpression = "";
   let miscValue = 0;
 
@@ -888,6 +930,8 @@
   }
 
   function updateTargetStatus(total) {
+    totalBox.classList.remove("total-ok", "total-high", "total-low");
+
     if (!targetEnabled.checked || targetInput.value.trim() === "") {
       targetStatus.textContent = "";
       targetStatus.className = "target-status";
@@ -895,9 +939,11 @@
     }
 
     const target = Number(targetInput.value.replace(/,/g, ""));
+
     if (!Number.isFinite(target) || target < 0) {
       targetStatus.textContent = "⚠ সঠিক Target Amount দিন";
       targetStatus.className = "target-status target-low";
+      totalBox.classList.add("total-low");
       return;
     }
 
@@ -906,12 +952,15 @@
     if (difference === 0) {
       targetStatus.textContent = "✓ Target Amount-এর সাথে মিলেছে: ৳" + formatNumberBD(total);
       targetStatus.className = "target-status target-ok";
+      totalBox.classList.add("total-ok");
     } else if (difference > 0) {
       targetStatus.textContent = "↑ Target-এর চেয়ে বেশি: ৳" + formatNumberBD(difference);
       targetStatus.className = "target-status target-high";
+      totalBox.classList.add("total-high");
     } else {
       targetStatus.textContent = "⚠ Target-এর চেয়ে কম: ৳" + formatNumberBD(Math.abs(difference));
       targetStatus.className = "target-status target-low";
+      totalBox.classList.add("total-low");
     }
   }
 
