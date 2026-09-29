@@ -619,7 +619,8 @@
           <div class="denom">৳1000</div>
           <input class="note-input" data-denom="1000"
                  inputmode="numeric" pattern="[0-9]*"
-                 aria-label="1000 টাকার নোট সংখ্যা">
+                 aria-label="1000 টাকার নোট সংখ্যা"
+                 oninput="calculateTotal()">
           <div class="note-subtotal" id="subtotal-1000"></div>
         </div>
 
@@ -974,9 +975,14 @@
 
   noteInputs.forEach(input => {
     input.addEventListener("input", calculateTotal);
+    input.addEventListener("change", calculateTotal);
+    input.addEventListener("keyup", calculateTotal);
   });
 
   targetInput.addEventListener("input", calculateTotal);
+  targetInput.addEventListener("change", calculateTotal);
+
+  calculateTotal();
 
   function updateMiscDisplay() {
     miscInput.value = miscExpression;
