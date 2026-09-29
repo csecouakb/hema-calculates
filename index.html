@@ -620,7 +620,7 @@
           <input class="note-input" data-denom="1000"
                  inputmode="numeric" pattern="[0-9]*"
                  aria-label="1000 টাকার নোট সংখ্যা"
-                 oninput="calculateTotal()">
+                 oninput="window.calculateTotal()">
           <div class="note-subtotal" id="subtotal-1000"></div>
         </div>
 
@@ -973,7 +973,12 @@
     return total;
   }
 
+  window.calculateTotal = calculateTotal;
+
   noteInputs.forEach(input => {
+    input.oninput = calculateTotal;
+    input.onchange = calculateTotal;
+    input.onkeyup = calculateTotal;
     input.addEventListener("input", calculateTotal);
     input.addEventListener("change", calculateTotal);
     input.addEventListener("keyup", calculateTotal);
