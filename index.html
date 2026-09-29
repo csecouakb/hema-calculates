@@ -356,12 +356,11 @@
 
     .target-row {
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto 1fr;
       gap: 7px;
       align-items: center;
       margin-bottom: 7px;
     }
-    .target-check { width: 22px; height: 22px; accent-color: var(--primary); }
     .target-label { font-size: 16px; font-weight: 800; white-space: nowrap; }
     .target-input {
       width: 100%; height: 42px; border: 2px solid var(--border);
@@ -373,9 +372,9 @@
       text-align: center; font-size: 14px; font-weight: 900; margin-bottom: 6px;
     }
     .target-status:empty { display:none; }
-    .target-ok { background:#e4eee8; color:#496b5a; }
-    .target-high { background:#f3e4e4; color:#a65b5b; }
-    .target-low { background:#fff3d9; color:#8a681d; }
+    .target-ok { color:#496b5a; }
+    .target-high { color:#a65b5b; }
+    .target-low { color:#8a681d; }
 
     /* Calculator */
 
@@ -555,9 +554,8 @@
       .note-input { height: 42px; font-size: 18px; border-radius: 9px; }
       .note-subtotal { min-height: 17px; margin-top: 2px; font-size: 12px; }
       .party-row { gap: 5px; margin-bottom: 5px; }
-      .target-row { grid-template-columns: auto auto 1fr; gap: 5px; margin-bottom: 5px; }
+      .target-row { grid-template-columns: auto 1fr; gap: 5px; margin-bottom: 5px; }
       .target-label { font-size: 14px; }
-      .target-check { width: 20px; height: 20px; }
       .target-input { height: 39px; font-size: 17px; }
       .target-status { min-height: 27px; font-size: 13px; padding: 4px; }
       .party-label { font-size: 14px; }
@@ -601,13 +599,18 @@
     <div class="card">
 
       <div class="target-row">
-        <input id="targetEnabled" class="target-check" type="checkbox" aria-label="Target Amount চালু করুন">
         <div class="target-label">Target</div>
         <input id="targetInput" class="target-input" inputmode="decimal" placeholder="Target Amount" aria-label="Target Amount">
       </div>
       <div class="party-row">
         <div class="party-label">Note (Optional)</div>
         <input id="partyInput" class="party-input" type="text" placeholder="" aria-label="Note">
+      </div>
+
+<div id="totalBox" class="total-box" style="margin-top:12px;">
+        <div class="total-label">সর্বমোট</div>
+        <div id="total" class="total">৳0</div>
+        <div id="targetStatus" class="target-status"></div>
       </div>
 
       <div class="note-grid">
@@ -722,12 +725,6 @@
             <div id="miscResult" class="misc-result">অঙ্ক লিখে ✓ চাপুন</div>
           </div>
         </div>
-      </div>
-
-      <div id="totalBox" class="total-box" style="margin-top:12px;">
-        <div class="total-label">সর্বমোট</div>
-        <div id="total" class="total">৳0</div>
-        <div id="targetStatus" class="target-status"></div>
       </div>
 
       <div class="actions">
@@ -894,9 +891,6 @@
   const totalElement =
     document.getElementById("total");
 
-  const targetEnabled =
-    document.getElementById("targetEnabled");
-
   const targetInput =
     document.getElementById("targetInput");
 
@@ -932,7 +926,7 @@
   function updateTargetStatus(total) {
     totalBox.classList.remove("total-ok", "total-high", "total-low");
 
-    if (!targetEnabled.checked || targetInput.value.trim() === "") {
+    if (targetInput.value.trim() === "") {
       targetStatus.textContent = "";
       targetStatus.className = "target-status";
       return;
@@ -982,7 +976,6 @@
     input.addEventListener("input", calculateTotal);
   });
 
-  targetEnabled.addEventListener("change", calculateTotal);
   targetInput.addEventListener("input", calculateTotal);
 
   function updateMiscDisplay() {
@@ -1131,7 +1124,6 @@
       });
 
       partyInput.value = "";
-      targetEnabled.checked = false;
       targetInput.value = "";
       targetStatus.textContent = "";
       targetStatus.className = "target-status";
@@ -1197,268 +1189,3 @@
       const misc = Number(miscValue) || 0;
 
       const now = new Date();
-
-      const item = {
-        date: now.toLocaleDateString("en-GB"),
-        time: now.toLocaleTimeString("en-GB", {
-          hour: "2-digit",
-          minute: "2-digit"
-        }),
-        party: partyInput.value.trim(),
-        breakdown,
-        misc,
-        total
-      };
-
-      const history = getHistory();
-
-      history.unshift(item);
-
-      saveHistory(history);
-
-      alert("হিসাব সংরক্ষণ হয়েছে");
-
-    });
-
-
-  function escapeHtml(text) {
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function renderHistory() {
-
-    const list =
-      document.getElementById("historyList");
-
-    const history = getHistory();
-
-    if (history.length === 0) {
-
-      list.innerHTML =
-        '<div class="history-empty">এখনও কোনো হিসাব সংরক্ষণ করা হয়নি।</div>';
-
-      return;
-    }
-
-
-    list.innerHTML = history.map(item => {
-
-      const parts = [];
-
-      Object.entries(item.breakdown)
-        .forEach(([denom, count]) => {
-          parts.push(`৳${denom} × ${count}`);
-        });
-
-      if (item.misc > 0) {
-        parts.push(`বিবিধ: ৳${Number(item.misc).toLocaleString("en-US")}`);
-      }
-
-      return `
-        <div class="history-item">
-
-          <div class="history-head">
-
-            <div>
-            ${item.party ? '<div style="font-size:18px;font-weight:800;margin-bottom:2px;">' + escapeHtml(item.party) + '</div>' : ''}
-            <div class="history-total">
-              ৳${Number(item.total).toLocaleString("en-US")}
-            </div>
-          </div>
-
-            <div class="history-time">
-              ${item.date} • ${item.time}
-            </div>
-
-          </div>
-
-          <div class="history-breakdown">
-            ${parts.length ? parts.join(" • ") : "কোনো নোট নেই"}
-          </div>
-
-        </div>
-      `;
-
-    }).join("");
-
-  }
-
-
-  document.getElementById("clearHistoryBtn")
-    .addEventListener("click", () => {
-
-      if (!confirm("সব সংরক্ষিত হিসাব মুছে ফেলবেন?")) {
-        return;
-      }
-
-      localStorage.removeItem(
-        "akbCalculatesHistory"
-      );
-
-      renderHistory();
-
-    });
-
-
-  /* =========================
-     CALCULATOR
-  ========================= */
-
-  const calcDisplay = document.getElementById("calcDisplay");
-  let calcExpression = "";
-
-  function updateCalcDisplay() {
-    calcDisplay.textContent = calcExpression || "0";
-  }
-
-  function calculateExpression() {
-    if (!calcExpression) return;
-    try {
-      const expression = calcExpression
-        .replace(/%/g, "/100")
-        .replace(/\^/g, "**");
-      if (!/^[0-9+\-*/().\s]+$/.test(expression.replace(/\*\*/g, ""))) throw new Error();
-      const result = Function('"use strict"; return (' + expression + ')')();
-      if (!Number.isFinite(result)) throw new Error();
-      calcExpression = String(result);
-      updateCalcDisplay();
-    } catch {
-      calcDisplay.textContent = "Error";
-      setTimeout(() => { calcExpression = ""; updateCalcDisplay(); }, 800);
-    }
-  }
-
-  document.querySelectorAll("#normalCalc .calc-btn").forEach(button => {
-    button.addEventListener("click", () => {
-      const value = button.dataset.value;
-      const action = button.dataset.action;
-      if (action === "clear") { calcExpression = ""; updateCalcDisplay(); return; }
-      if (action === "backspace") { calcExpression = calcExpression.slice(0, -1); updateCalcDisplay(); return; }
-      if (action === "equals") { calculateExpression(); return; }
-      if (value !== undefined) { calcExpression += value; updateCalcDisplay(); }
-    });
-  });
-
-  const normalModeBtn = document.getElementById("normalModeBtn");
-  const advancedModeBtn = document.getElementById("advancedModeBtn");
-  const normalCalc = document.getElementById("normalCalc");
-  const advancedCalc = document.getElementById("advancedCalc");
-
-  normalModeBtn.addEventListener("click", () => {
-    normalModeBtn.classList.add("active");
-    advancedModeBtn.classList.remove("active");
-    normalCalc.style.display = "block";
-    advancedCalc.style.display = "none";
-  });
-
-  advancedModeBtn.addEventListener("click", () => {
-    advancedModeBtn.classList.add("active");
-    normalModeBtn.classList.remove("active");
-    normalCalc.style.display = "none";
-    advancedCalc.style.display = "block";
-  });
-
-  function gcd(a, b) {
-    a = Math.abs(Math.trunc(a)); b = Math.abs(Math.trunc(b));
-    while (b) [a, b] = [b, a % b];
-    return a || 1;
-  }
-
-  function factorial(n) {
-    n = Number(n);
-    if (!Number.isInteger(n) || n < 0 || n > 170) return null;
-    let r = 1;
-    for (let i = 2; i <= n; i++) r *= i;
-    return r;
-  }
-
-  function permutation(n, r) {
-    n = Number(n); r = Number(r);
-    if (!Number.isInteger(n) || !Number.isInteger(r) || n < 0 || r < 0 || r > n) return null;
-    let result = 1;
-    for (let i = 0; i < r; i++) result *= (n - i);
-    return result;
-  }
-
-  function combination(n, r) {
-    n = Number(n); r = Number(r);
-    if (!Number.isInteger(n) || !Number.isInteger(r) || n < 0 || r < 0 || r > n) return null;
-    r = Math.min(r, n - r);
-    let result = 1;
-    for (let i = 1; i <= r; i++) result = result * (n - r + i) / i;
-    return result;
-  }
-
-  document.getElementById("fractionBtn").addEventListener("click", () => {
-    const n = Number(document.getElementById("fracNumerator").value);
-    const d = Number(document.getElementById("fracDenominator").value);
-    const out = document.getElementById("fractionResult");
-    if (!Number.isFinite(n) || !Number.isFinite(d) || d === 0) {
-      out.textContent = "সঠিক লব ও হর দিন"; return;
-    }
-    const whole = n / d;
-    const g = gcd(n, d);
-    out.textContent = "সরল: " + (n/g) + "/" + (d/g) + "  |  মান: " +
-      whole.toLocaleString("en-US", {maximumFractionDigits:12});
-  });
-
-  document.getElementById("powerBtn").addEventListener("click", () => {
-    const b = Number(document.getElementById("powerBase").value);
-    const p = Number(document.getElementById("powerExponent").value);
-    const r = Math.pow(b, p);
-    document.getElementById("powerResult").textContent =
-      Number.isFinite(r) ? "ফলাফল: " + r.toLocaleString("en-US", {maximumFractionDigits:12}) : "সঠিক Base ও Power দিন";
-  });
-
-  document.querySelectorAll("[data-adv]").forEach(button => {
-    button.addEventListener("click", () => {
-      const type = button.dataset.adv;
-      const value = prompt(type === "factorial" ? "n এর মান দিন" : "x এর মান দিন");
-      if (value === null) return;
-      const n = Number(value);
-      let r = type === "sqrt" ? Math.sqrt(n) : type === "log" ? Math.log10(n) : type === "ln" ? Math.log(n) : factorial(n);
-      if (!Number.isFinite(r) || r === null) { alert("সঠিক মান দিন"); return; }
-      calcDisplay.textContent = r.toLocaleString("en-US", {maximumFractionDigits:12});
-    });
-  });
-
-  document.getElementById("nprBtn").addEventListener("click", () => {
-    const r = permutation(document.getElementById("combN").value, document.getElementById("combR").value);
-    document.getElementById("combResult").textContent = r === null ? "সঠিক n ও r দিন (r ≤ n)" : "nPr = " + r.toLocaleString("en-US");
-  });
-
-  document.getElementById("ncrBtn").addEventListener("click", () => {
-    const r = combination(document.getElementById("combN").value, document.getElementById("combR").value);
-    document.getElementById("combResult").textContent = r === null ? "সঠিক n ও r দিন (r ≤ n)" : "nCr = " + r.toLocaleString("en-US");
-  });
-
-  /* =========================
-     SERVICE WORKER
-  ========================= */
-
-  if ("serviceWorker" in navigator) {
-
-    window.addEventListener("load", () => {
-
-      navigator.serviceWorker
-        .register("./sw.js")
-        .catch(error => {
-          console.log(
-            "Service Worker registration failed:",
-            error
-          );
-        });
-
-    });
-
-  }
-
-</script>
-
-</body>
-</html>
